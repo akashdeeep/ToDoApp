@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { StatusBar } from "expo-status-bar";
 import {
 	StyleSheet,
 	Text,
@@ -13,13 +14,26 @@ import GoalItem from "./components/GoalItem";
 import GoalInput from "./components/GoalInput";
 
 export default function App() {
+	const [modalsVisible, setModalsVisible] = useState(false);
 	const [goals, setGoals] = useState([]);
+
+	function startAddGoalHandler() {
+		setModalsVisible(true);
+	}
+
+	function cancelGoalAddHandler() {
+		setModalsVisible(false);
+	}
 
 	function addGoalHandler(enteredGoal) {
 		setGoals((currentGoals) => [
 			...currentGoals,
 			{ text: enteredGoal, key: Math.random().toString() },
 		]);
+		setModalsVisible(false);
+	}
+	function endAddGoalHandler() {
+		setModalsVisible(false);
 	}
 
 	deleteGoalHandler = (goalKey) => {
@@ -29,23 +43,38 @@ export default function App() {
 	};
 
 	return (
-		<View style={styles.appContainer}>
-			<GoalInput onAddGoal={addGoalHandler} />
-			<View style={styles.goalContainer}>
-				<FlatList
-					data={goals}
-					renderItem={(itemData) => {
-						return (
-							<GoalItem
-								text={itemData.item.text}
-								id={itemData.item.key}
-								onDeleteItem={deleteGoalHandler}
-							/>
-						);
-					}}
+		<>
+			<StatusBar style="light" />
+			<View style={styles.appContainer}>
+				<Button
+					title="Add New Goal"
+					color="#500acc"
+					onPress={startAddGoalHandler}
 				/>
+
+				{modalsVisible && (
+					<GoalInput
+						visible={modalsVisible}
+						onAddGoal={addGoalHandler}
+						onCancel={endAddGoalHandler}
+					/>
+				)}
+				<View style={styles.goalContainer}>
+					<FlatList
+						data={goals}
+						renderItem={(itemData) => {
+							return (
+								<GoalItem
+									text={itemData.item.text}
+									id={itemData.item.key}
+									onDeleteItem={deleteGoalHandler}
+								/>
+							);
+						}}
+					/>
+				</View>
 			</View>
-		</View>
+		</>
 	);
 }
 
@@ -54,6 +83,7 @@ const styles = StyleSheet.create({
 		flex: 1,
 		paddingTop: 50,
 		paddingHorizontal: 30,
+		backgroundColor: "#311b6b",
 	},
 	goalContainer: {
 		flex: 5,
@@ -62,16 +92,5 @@ const styles = StyleSheet.create({
 		// backgroundColor: "#ccc",
 		// borderColor: "black",
 		// borderWidth: 1,
-	},
-	goalItem: {
-		padding: 10,
-		marginVertical: 10,
-		borderRadius: 10,
-		backgroundColor: "#5e0acc",
-		borderColor: "black",
-		borderWidth: 1,
-	},
-	goalText: {
-		color: "white",
 	},
 });
